@@ -3,16 +3,24 @@
 OutPin = 7
 Config = {  # This configuration is for my C350
 
-  'off':    ('once', 0xe13e13ec),
-  'on':     ('once', 0xe13ea45b),
+  #'off':    ('once', 0xe13e13ec),
+  #'on':     ('once', 0xe13ea45b),
+  'power':    ('once', 0xe13e01fe),
 
   'mute':     ('once', 0xe13e29d6),
 
+  # CD
+  'play':     ('once', 0xe13e807f), # play/pause actually
+  'prev':     ('once', 0xe13ea05f),
+  'next':     ('once', 0xe13e609f),
+  'random':   ('once', 0xe13ec03f),
+  'stop':     ('once', 0xe13e40bf),
+
   # Volume
   #
-  '-':      ('hold', 0xe13e31ce),
+  '-':        ('once', 0xe13e31ce),
   'down':     ('hold', 0xe13e31ce),
-  '+':      ('hold', 0xe13e11ee),
+  '+':        ('once', 0xe13e11ee),
   'up':       ('hold', 0xe13e11ee),
 
   'monitor':  ('once', 0xe13eb14e),
@@ -31,7 +39,9 @@ Config = {  # This configuration is for my C350
   'radio':    ('once', 0xe13ebb44),
   'sofa':     ('once', 0xe13ed926),
   'pi':       ('once', 0xe13e43bc),
-  'mac':      ('once', 0xe13ea15e)
+  'mac':      ('once', 0xe13ea15e),
+
+  'code':     ('once', 0x0)
 }
 
 
@@ -66,6 +76,8 @@ g.setup(OutPin, g.OUT, initial=True)
 mode, cmd = Config[sys.argv[1]]
 hold = mode.lower() == 'hold'
 
+if cmd == 0x0:
+    cmd = int(sys.argv[2], 16)
 
 # The magic durations between output state flips that represent a single remote-control signal bit in NAD-land
 #
