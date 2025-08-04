@@ -24,7 +24,7 @@ Config = {  # This configuration is for my C350
   'up':       ('hold', 0xe13e11ee),
 
   'monitor':  ('once', 0xe13eb14e),
-  'tape':     ('once', 0xe13e8976),
+  'tape':     ('once', 0xe13eb14e),
   'tuner':    ('once', 0xe13ebb44),
   'aux':      ('once', 0xe13ed926),
   'video':    ('once', 0xe13e43bc),
@@ -37,9 +37,8 @@ Config = {  # This configuration is for my C350
   # Personal source aliases :D
   #
   'radio':    ('once', 0xe13ebb44),
-  'sofa':     ('once', 0xe13ed926),
-  'pi':       ('once', 0xe13e43bc),
-  'mac':      ('once', 0xe13ea15e),
+  'mac':      ('once', 0xe13ed926),
+  'pi':       ('once', 0xe13eb14e),
 
   'code':     ('once', 0x0)
 }
