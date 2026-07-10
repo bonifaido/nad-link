@@ -35,6 +35,76 @@ Daemon
 I've now included an example of a very simple daemon which listens for volume control events from my Bluetooth remote (or therefore, presumably, any keyboard's volume keys) and launches the script to do the relevant volumizing.
 
 
+Home Assistant
+-----
+
+For Home Assistant, the simplest approach is to keep `nad-link.py` as the timing-critical transmitter and run a separate long-lived HTTP wrapper that invokes it on demand.
+
+Start the daemon on the Pi:
+
+````
+$ python3 /opt/nad-link/nad-link-http.py --host 0.0.0.0 --port 5384
+````
+
+Health check:
+
+````
+$ curl http://pi-zero:5384/health
+````
+
+Send a command:
+
+````
+$ curl -X POST http://pi-zero:5384/command/power
+$ curl -X POST http://pi-zero:5384/command/cd
+$ curl -X POST http://pi-zero:5384/command/up
+$ curl -X POST http://pi-zero:5384/command/code \
+	-H 'Content-Type: application/json' \
+	-d '{"hexcode":"e13e01fe"}'
+````
+
+The `up` and `down` commands are treated as hold commands by the daemon and default to a short 200ms press. You can override that per request:
+
+````
+$ curl -X POST http://pi-zero:5384/command/up \
+	-H 'Content-Type: application/json' \
+	-d '{"hold_ms":500}'
+````
+
+There is also a sample systemd unit in `nad-link-http.service`.
+
+In Home Assistant, define a few REST commands in `configuration.yaml`:
+
+````yaml
+rest_command:
+	nad_power:
+		url: "http://pi-zero:5384/command/power"
+		method: POST
+
+	nad_cd:
+		url: "http://pi-zero:5384/command/cd"
+		method: POST
+
+	nad_volume_up:
+		url: "http://pi-zero:5384/command/up"
+		method: POST
+		content_type: "application/json"
+		payload: '{"hold_ms":250}'
+
+	nad_volume_down:
+		url: "http://pi-zero:5384/command/down"
+		method: POST
+		content_type: "application/json"
+		payload: '{"hold_ms":250}'
+
+	nad_mute:
+		url: "http://pi-zero:5384/command/mute"
+		method: POST
+````
+
+You can then expose those as buttons, scripts, or dashboard actions in the Home Assistant UI.
+
+
 Futility
 --------
 

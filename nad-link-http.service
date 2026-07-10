@@ -1,0 +1,11 @@
+[Unit]
+Description=NAD Link HTTP daemon for Home Assistant
+After=network.target
+
+[Service]
+ExecStart=/usr/bin/python3 /opt/nad-link/nad-link-http.py --host 0.0.0.0 --port 5384
+WorkingDirectory=/opt/nad-link
+Restart=on-failure
+
+[Install]
+WantedBy=multi-user.target

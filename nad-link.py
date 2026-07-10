@@ -64,6 +64,23 @@ import atexit
 from monotonic import monotonic
 
 
+def usageAndExit(message=None):
+  if message:
+    print(message)
+  print("Usage: {} <command>|code [hexcode]".format(sys.argv[0]))
+  print("Known commands: {}".format(', '.join(sorted(Config.keys()))))
+  print("Example custom code: {} code e13e01fe".format(sys.argv[0]))
+  sys.exit(1)
+
+
+if len(sys.argv) < 2:
+  usageAndExit("Missing command argument.")
+
+commandName = sys.argv[1]
+if commandName not in Config:
+  usageAndExit("Unknown command: {}".format(commandName))
+
+
 def cleanup():
   g.cleanup(OutPin)
 atexit.register(cleanup)
@@ -72,11 +89,16 @@ g.setmode(g.BOARD)
 g.setup(OutPin, g.OUT, initial=True)
 
 
-mode, cmd = Config[sys.argv[1]]
+mode, cmd = Config[commandName]
 hold = mode.lower() == 'hold'
 
 if cmd == 0x0:
+  if len(sys.argv) < 3:
+    usageAndExit("Missing hex code for 'code' command.")
+  try:
     cmd = int(sys.argv[2], 16)
+  except ValueError:
+    usageAndExit("Invalid hex code: {}".format(sys.argv[2]))
 
 # The magic durations between output state flips that represent a single remote-control signal bit in NAD-land
 #
@@ -95,8 +117,8 @@ def commandDelays(cmd):
   yield 9000
   yield 4500
 
-  # Send the remote code one bit at a time
-  for c in "{0:b}".format(cmd):
+  # Send the remote code one bit at a time, keeping leading zeros in a fixed 32-bit frame.
+  for c in "{0:032b}".format(cmd):
     for d in oneBitDelays(c=='1'):
       yield d
 
